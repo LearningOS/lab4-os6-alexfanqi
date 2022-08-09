@@ -30,7 +30,7 @@ use crate::fs::{open_file, OpenFlags};
 pub use task::{TaskControlBlock, TaskStatus};
 
 pub use context::TaskContext;
-pub use manager::add_task;
+pub use manager::{add_task, set_priority};
 pub use pid::{pid_alloc, KernelStack, PidHandle};
 pub use processor::{
     current_task, current_trap_cx, current_user_token, run_tasks, schedule, take_current_task,
@@ -103,4 +103,10 @@ lazy_static! {
 
 pub fn add_initproc() {
     add_task(INITPROC.clone());
+}
+
+pub fn update_syscall_stats(syscall_id: usize) {
+    let task = current_task().unwrap();
+    let mut inner = task.inner_exclusive_access();
+    inner.syscall_stats[syscall_id] += 1;
 }
